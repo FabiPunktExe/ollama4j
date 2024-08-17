@@ -3,6 +3,7 @@ package io.github.ollama4j.tools;
 import io.github.ollama4j.models.response.OllamaResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OllamaToolsResult {
-    private OllamaResult modelResult;
+    private @Getter OllamaResult modelResult;
     private Map<ToolFunctionCallSpec, Object> toolResults;
 
     public List<ToolResult> getToolResults() {

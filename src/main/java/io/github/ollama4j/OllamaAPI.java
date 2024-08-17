@@ -573,6 +573,27 @@ public class OllamaAPI {
         return chat(request, null);
     }
 
+    public OllamaToolsResult chatWithTools(OllamaChatRequest request)
+            throws OllamaBaseException, IOException, InterruptedException, ToolInvocationException {
+        OllamaToolsResult toolResult = new OllamaToolsResult();
+        Map<ToolFunctionCallSpec, Object> toolResults = new HashMap<>();
+
+        OllamaChatResult result = chat(request);
+        toolResult.setModelResult(result);
+
+        String toolsResponse = result.getResponse();
+        if (toolsResponse.contains("[TOOL_CALLS]")) {
+            toolsResponse = toolsResponse.replace("[TOOL_CALLS]", "");
+        }
+
+        List<ToolFunctionCallSpec> toolFunctionCallSpecs = Utils.getObjectMapper().readValue(toolsResponse, Utils.getObjectMapper().getTypeFactory().constructCollectionType(List.class, ToolFunctionCallSpec.class));
+        for (ToolFunctionCallSpec toolFunctionCallSpec : toolFunctionCallSpecs) {
+            toolResults.put(toolFunctionCallSpec, invokeTool(toolFunctionCallSpec));
+        }
+        toolResult.setToolResults(toolResults);
+        return toolResult;
+    }
+
     /**
      * Ask a question to a model using an {@link OllamaChatRequest}. This can be constructed using an {@link OllamaChatRequestBuilder}.
      * <p>
